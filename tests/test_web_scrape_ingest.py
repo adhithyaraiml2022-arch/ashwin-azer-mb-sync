@@ -82,17 +82,15 @@ def test_parse_release_year_no_year():
 
 
 def test_lastfm_artist_slug_derived():
-    with unittest.mock.patch.dict(os.environ, {}, clear=False):
-        os.environ.pop("LASTFM_ARTIST_URL", None)
+    with unittest.mock.patch.dict(os.environ, {"LASTFM_ARTIST_URL": ""}, clear=False):
         slug = _lastfm_artist_slug("Ashwin Azer")
     assert slug == "Ashwin+Azer"
 
 
 def test_lastfm_artist_slug_special_chars():
-    with unittest.mock.patch.dict(os.environ, {}, clear=False):
-        os.environ.pop("LASTFM_ARTIST_URL", None)
+    with unittest.mock.patch.dict(os.environ, {"LASTFM_ARTIST_URL": ""}, clear=False):
         slug = _lastfm_artist_slug("AC/DC")
-    assert "/" not in slug
+    assert slug == "AC%2FDC"
 
 
 def test_lastfm_artist_slug_full_url_override():
