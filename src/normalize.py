@@ -93,7 +93,7 @@ def normalize_track(raw: dict[str, Any], source: str) -> dict[str, Any]:
         "isrc": raw.get("isrc").upper() if raw.get("isrc") else None,
         "artists": raw.get("artists", []),
         "composers": raw.get("composers"),
-        "url": raw.get("spotify_url") or raw.get("apple_music_url"),
+        "url": raw.get("spotify_url") or raw.get("apple_music_url") or raw.get("url"),
     }
 
 
@@ -117,7 +117,7 @@ def normalize_release(raw: dict[str, Any], source: str) -> dict[str, Any]:
         "total_tracks": raw.get("total_tracks"),
         "label": raw.get("label") or raw.get("record_label"),
         "upc": raw.get("upc").strip() if raw.get("upc") else None,
-        "url": raw.get("spotify_url") or raw.get("apple_music_url"),
+        "url": raw.get("spotify_url") or raw.get("apple_music_url") or raw.get("url"),
         "artwork_url": (
             raw.get("images", [{}])[0].get("url")
             if raw.get("images")
@@ -134,7 +134,7 @@ def normalize_artist(raw: dict[str, Any], source: str) -> dict[str, Any]:
         "source_id": raw.get("id"),
         "name": _clean_title(raw.get("name")),
         "genres": raw.get("genres") or raw.get("genre_names", []),
-        "url": raw.get("spotify_url") or raw.get("apple_music_url"),
+        "url": raw.get("spotify_url") or raw.get("apple_music_url") or raw.get("url"),
     }
 
 

@@ -104,6 +104,8 @@ Structured citation bundles containing:
 - Source URLs (Last.fm) for each release
 - ISRC lookup links (IFPI, MusicBrainz) for each track where ISRCs are available
 
+> **Note:** ISRC codes, UPC/barcode, and record label are not available in Last.fm HTML, so those fields will be `null` in reports.
+
 ---
 
 ## GitHub Actions Workflow

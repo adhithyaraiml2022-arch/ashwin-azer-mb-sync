@@ -21,6 +21,7 @@ import logging
 import os
 import re
 import time
+import urllib.parse
 from typing import Any
 
 import requests
@@ -39,6 +40,12 @@ except ValueError:
         "SCRAPE_DELAY must be a number (e.g. '1.0'). "
         "Check the SCRAPE_DELAY environment variable."
     ) from None
+
+if _REQUEST_DELAY < 0:
+    raise ValueError(
+        "SCRAPE_DELAY must be non-negative (e.g. '0' or '1.0'). "
+        "Check the SCRAPE_DELAY environment variable."
+    )
 
 _SESSION: requests.Session | None = None
 
@@ -70,11 +77,23 @@ def _get(url: str, params: dict[str, Any] | None = None) -> BeautifulSoup:
 
 def _lastfm_artist_slug(artist_name: str) -> str:
     """Convert an artist name to the Last.fm URL slug."""
-    slug = os.getenv("LASTFM_ARTIST_URL", "")
-    if slug:
-        return slug
-    # Last.fm uses '+' for spaces in artist slugs
-    return artist_name.replace(" ", "+")
+    override = os.getenv("LASTFM_ARTIST_URL", "").strip()
+    if override:
+        # Accept either a full URL (e.g. https://www.last.fm/music/Ashwin+Azer)
+        # or a bare slug (e.g. Ashwin+Azer).
+        parsed = urllib.parse.urlparse(override)
+        if parsed.scheme in ("http", "https"):
+            # Extract the slug portion after /music/ in the path
+            path = parsed.path.rstrip("/")
+            if "/music/" in path:
+                slug = path.split("/music/", 1)[1]
+            else:
+                slug = path.split("/")[-1]
+            return slug if slug else urllib.parse.quote_plus(artist_name)
+        # Treat override as a raw slug as-is
+        return override
+    # Last.fm uses '+' for spaces; use quote_plus to also encode other special chars
+    return urllib.parse.quote_plus(artist_name)
 
 
 # ---------------------------------------------------------------------------
@@ -120,11 +139,23 @@ def _scrape_album_list(slug: str) -> list[dict[str, Any]]:
             continue
 
         title: str = title_tag.get_text(strip=True)
-        href: str = title_tag.get("href", "")
-        album_url: str = f"{LASTFM_BASE}{href}" if href.startswith("/") else href
+        href: str = title_tag.get("href", "").strip()
+        if not href:
+            continue
+
+        if href.startswith("/"):
+            album_url: str = f"{LASTFM_BASE}{href}"
+            album_path: str = href
+        elif href.startswith(("http://", "https://")):
+            album_url = href
+            album_path = urllib.parse.urlparse(href).path
+        else:
+            continue
 
         # Last.fm album slugs are the last segment of the path
-        album_slug: str = href.rstrip("/").split("/")[-1]
+        album_slug: str = album_path.rstrip("/").split("/")[-1]
+        if not album_slug:
+            continue
 
         # Release date — sometimes shown on the card
         date_tag = item.select_one(".resource-list--release-list-item-date")
@@ -177,7 +208,6 @@ def _parse_release_year(raw_date: str | None) -> str | None:
 
 
 def _scrape_album_tracks(
-    artist_slug: str,
     album_stub: dict[str, Any],
 ) -> dict[str, Any]:
     """Scrape a single album page and return a structured album dict."""
@@ -265,7 +295,7 @@ def fetch_full_discography(artist_name: str = ARTIST_NAME) -> dict[str, Any]:
     discography: list[dict[str, Any]] = []
     for album_stub in album_list:
         try:
-            album = _scrape_album_tracks(slug, album_stub)
+            album = _scrape_album_tracks(album_stub)
             discography.append(album)
         except requests.HTTPError as exc:
             logger.warning(

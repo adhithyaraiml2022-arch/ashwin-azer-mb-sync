@@ -65,6 +65,14 @@ def build_evidence_pack(report: dict[str, Any]) -> dict[str, Any]:
                     "description": f'Apple Music listing for "{title}"',
                 }
             )
+        if src_urls.get("lastfm"):
+            sources.append(
+                {
+                    "source": "Last.fm",
+                    "url": src_urls["lastfm"],
+                    "description": f'Last.fm listing for "{title}"',
+                }
+            )
         if candidate.get("artwork_url"):
             sources.append(
                 {
@@ -103,6 +111,7 @@ def build_evidence_pack(report: dict[str, Any]) -> dict[str, Any]:
             "name": artist.get("name"),
             "spotify_url": artist.get("spotify_url"),
             "apple_music_url": artist.get("apple_music_url"),
+            "lastfm_url": artist.get("lastfm_url"),
         },
         "evidence_entries": entries,
     }
@@ -143,6 +152,8 @@ def write_evidence_markdown(
         lines.append(f"- Spotify: [{artist['spotify_url']}]({artist['spotify_url']})")
     if artist.get("apple_music_url"):
         lines.append(f"- Apple Music: [{artist['apple_music_url']}]({artist['apple_music_url']})")
+    if artist.get("lastfm_url"):
+        lines.append(f"- Last.fm: [{artist['lastfm_url']}]({artist['lastfm_url']})")
     lines.append("")
     lines.append("---")
     lines.append("")

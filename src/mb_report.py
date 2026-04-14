@@ -80,7 +80,7 @@ def mb_isrc_search_url(isrc: str) -> str:
 
 
 def _extract_source_ids(release: dict[str, Any]) -> dict[str, str | None]:
-    """Return a dict of {spotify, apple_music} source IDs from a release dict."""
+    """Return a dict of {spotify, apple_music, lastfm} source IDs from a release dict."""
     source = release.get("source")
     source_id = release.get("source_id")
     return {
@@ -89,16 +89,18 @@ def _extract_source_ids(release: dict[str, Any]) -> dict[str, str | None]:
             release.get("apple_source_id")
             or (source_id if source == "apple_music" else None)
         ),
+        "lastfm": source_id if source == "web_scrape" else None,
     }
 
 
 def _extract_source_urls(release: dict[str, Any]) -> dict[str, str | None]:
-    """Return a dict of {spotify, apple_music} URLs from a release dict."""
+    """Return a dict of {spotify, apple_music, lastfm} URLs from a release dict."""
     source = release.get("source")
     url = release.get("url")
     return {
         "spotify": url if source == "spotify" else None,
         "apple_music": release.get("apple_url") or (url if source == "apple_music" else None),
+        "lastfm": url if source == "web_scrape" else None,
     }
 
 
@@ -176,6 +178,7 @@ def build_report(merged_data: dict[str, Any]) -> dict[str, Any]:
             "apple_music_id": artist.get("apple_music_id"),
             "spotify_url": artist.get("spotify_url"),
             "apple_music_url": artist.get("apple_music_url"),
+            "lastfm_url": artist.get("url") if artist.get("source") == "web_scrape" else None,
             "mbid": ARTIST_MBID or None,
             "mb_url": mb_artist_page_url(ARTIST_MBID) if ARTIST_MBID else None,
         },
@@ -220,6 +223,8 @@ def write_markdown_report(report: dict[str, Any], output_dir: Path = REPORTS_DIR
         lines.append(f"- **Spotify:** [{artist['spotify_url']}]({artist['spotify_url']})")
     if artist.get("apple_music_url"):
         lines.append(f"- **Apple Music:** [{artist['apple_music_url']}]({artist['apple_music_url']})")
+    if artist.get("lastfm_url"):
+        lines.append(f"- **Last.fm:** [{artist['lastfm_url']}]({artist['lastfm_url']})")
     if artist.get("mbid"):
         lines.append(f"- **MusicBrainz:** [{artist['mb_url']}]({artist['mb_url']})")
     lines.append("")
@@ -246,6 +251,8 @@ def write_markdown_report(report: dict[str, Any], output_dir: Path = REPORTS_DIR
             lines.append(f"- **Spotify:** [{src['spotify']}]({src['spotify']})")
         if src.get("apple_music"):
             lines.append(f"- **Apple Music:** [{src['apple_music']}]({src['apple_music']})")
+        if src.get("lastfm"):
+            lines.append(f"- **Last.fm:** [{src['lastfm']}]({src['lastfm']})")
         if candidate.get("artwork_url"):
             lines.append(f"- **Artwork:** [{candidate['artwork_url']}]({candidate['artwork_url']})")
         lines.append(
