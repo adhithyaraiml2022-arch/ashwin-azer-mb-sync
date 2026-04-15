@@ -1,7 +1,11 @@
 """Deployment entrypoint for Flask app autodetection."""
 
+import os
+
 from src.webapp import app
 
 
 if __name__ == "__main__":
-    app.run(debug=False, host="127.0.0.1", port=5000)
+    host = os.getenv("FLASK_HOST", "0.0.0.0")
+    port = int(os.getenv("FLASK_PORT", "5000"))
+    app.run(debug=False, host=host, port=port)

@@ -15,6 +15,7 @@
       --glass-shadow: 0 8px 30px rgba(15, 23, 42, 0.25);
       --text-main: #0f172a;
       --text-soft: #e2e8f0;
+      --navbar-bg: rgba(2, 6, 23, 0.55);
     }
     body {
       min-height: 100vh;
@@ -26,7 +27,7 @@
     }
     .navbar-brand { font-weight: 700; letter-spacing: .03em; }
     .navbar {
-      background: rgba(2, 6, 23, 0.55) !important;
+      background: var(--navbar-bg) !important;
       backdrop-filter: blur(14px);
       -webkit-backdrop-filter: blur(14px);
       border-bottom: 1px solid rgba(255, 255, 255, 0.16);
@@ -40,7 +41,7 @@
       color: var(--text-soft);
     }
     .card .table { color: var(--text-soft); }
-    .card .table-light, .table-light > :not(caption) > * > * {
+    .card .table-light, .card .table-light th, .card .table-light td {
       background: rgba(255, 255, 255, 0.12) !important;
       color: var(--text-soft) !important;
     }
