@@ -1,7 +1,8 @@
 """Entrypoint for Flask app autodetection.
 
 For production deployments, run this app behind a WSGI server (for example:
-`gunicorn app:app`) instead of Flask's built-in development server.
+`gunicorn app:app`) instead of Flask's built-in development server. On
+container/cloud platforms, set `FLASK_HOST=0.0.0.0` so the service is reachable.
 """
 
 import os
