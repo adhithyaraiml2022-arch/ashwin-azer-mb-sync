@@ -40,6 +40,10 @@
       -webkit-backdrop-filter: blur(18px);
       color: var(--text-soft);
     }
+    @supports not ((backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))) {
+      .navbar { background: rgba(2, 6, 23, 0.92) !important; }
+      .card { background: rgba(15, 23, 42, 0.92); }
+    }
     .card .table { color: var(--text-soft); }
     .card .table-light, .card .table-light th, .card .table-light td {
       background: rgba(255, 255, 255, 0.12) !important;
@@ -47,8 +51,8 @@
     }
     .text-muted { color: rgba(226, 232, 240, 0.75) !important; }
     .btn-outline-secondary, .btn-outline-primary { border-width: 1px; }
-    a { color: #93c5fd; }
-    a:hover { color: #bfdbfe; }
+    a { color: #e2e8f0; }
+    a:hover { color: #ffffff; }
     .badge-missing { font-size: .75em; }
     .track-table th, .track-table td { font-size: .85em; }
     .mb-add-btn { white-space: nowrap; }
